@@ -1,0 +1,64 @@
+:root {
+    --bg-main: #0B0F19;
+    --bg-surface: #111827;
+    --bg-card: #1F2937;
+    --border-color: #374151;
+    --border-focus: #3B82F6;
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+    --primary-glow: rgba(37, 99, 235, 0.25);
+    --accent: #38BDF8;
+    --text-primary: #F9FAFB;
+    --text-secondary: #9CA3AF;
+    --text-muted: #6B7280;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+}
+
+.stApp {
+    background-color: var(--bg-main) !important;
+    color: var(--text-primary) !important;
+    font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+#MainMenu, footer, header { visibility: hidden; }
+
+section[data-testid="stSidebar"] {
+    background-color: var(--bg-surface) !important;
+    border-right: 1px solid var(--border-color) !important;
+}
+
+.metric-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 20px 22px;
+    position: relative;
+}
+.metric-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary); }
+.metric-card.accent-purple::before { background: #8B5CF6; }
+.metric-card.accent-green::before { background: #10B981; }
+.metric-card.accent-red::before { background: #EF4444; }
+
+.metric-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); }
+.metric-value { font-size: 32px; font-weight: 800; color: var(--text-primary); margin-top: 8px; }
+.metric-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+.kanban-col-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.kanban-col-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); }
+.kanban-card { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; }
+.kanban-card-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.kanban-card-company { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+.kanban-card-meta { font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; }
+
+.badge { padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; }
+.badge-applied { background-color: rgba(30, 58, 138, 0.4); border: 1px solid #3B82F6; color: #93C5FD; }
+.badge-interviewing { background-color: rgba(112, 26, 117, 0.4); border: 1px solid #C084FC; color: #F0ABFC; }
+.badge-offer { background-color: rgba(6, 78, 59, 0.4); border: 1px solid #34D399; color: #6EE7B7; }
+.badge-rejected { background-color: rgba(127, 29, 29, 0.4); border: 1px solid #F87171; color: #FCA5A5; }
+
+.output-card { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 24px; line-height: 1.7; white-space: pre-wrap; }
+.ai-header-badge { display: inline-flex; align-items: center; background: rgba(37, 99, 235, 0.15); border: 1px solid var(--primary); color: var(--accent); padding: 4px 12px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 700; margin-bottom: 16px; }
+
+.stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>div { background-color: var(--bg-surface) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; border-radius: var(--radius-sm) !important; }
+.stButton>button { background-color: var(--primary) !important; color: #FFFFFF !important; border: none !important; border-radius: var(--radius-sm) !important; padding: 10px 20px !important; font-weight: 600 !important; }
