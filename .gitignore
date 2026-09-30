@@ -1,0 +1,21 @@
+# Environment variables / Secrets
+.env
+.streamlit/secrets.toml
+
+# Python virtual environment
+venv/
+ENV/
+env/
+
+# Python cache & build files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite Local Database (prevents wiping your DB on git pull/push)
+*.db
+*.sqlite3
+
+# OS files
+.DS_Store
+Thumbs.db
