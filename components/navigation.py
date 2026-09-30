@@ -29,7 +29,8 @@ def render_sidebar() -> str:
             "Resume Gap Analysis",
             "Generate Document",
             "Interview Prep",
-            "Career Memory (RAG)"
+            "Career Memory (RAG)",
+            "Resume Converter"
         ],
         key="main_navigation_radio"
     )
