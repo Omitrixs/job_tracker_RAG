@@ -1,52 +1,66 @@
-import sys
-import os
-from dotenv import load_dotenv
-load_dotenv()
-
-# Add project root directory to Python's module search path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
 import streamlit as st
-import config
-from database import Tracker
-from views import dashboard, kanban, log_app, gap_analysis, doc_generator
+import os
 
-# Initialize Database Tracker
-tracker = Tracker()
-
-# Page Setup
+# Page Configuration - Enterprise SaaS Theme
 st.set_page_config(
-    page_title=config.APP_TITLE,
-    page_icon=config.APP_ICON,
+    page_title="CareerOps AI | Candidate Command Center",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Load External CSS
-if os.path.exists(config.CSS_PATH):
-    with open(config.CSS_PATH, "r") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# Load Tokenized Design System (assets/style.css)
+def load_css():
+    css_path = os.path.join(os.path.dirname(__file__), "assets", "style.css")
+    if os.path.exists(css_path):
+        with open(css_path, "r", encoding="utf-8") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# Sidebar Navigation Router
-st.sidebar.markdown("<h2 style='color: #F9FAFB; font-weight: 800; margin-bottom: 0;'>CareerOps</h2>", unsafe_allow_html=True)
-st.sidebar.markdown("<p style='color: #6B7280; font-size: 11px; font-weight: 600; margin-bottom: 25px;'>EXECUTIVE CAREER SUITE</p>", unsafe_allow_html=True)
+load_css()
 
-menu = st.sidebar.radio(
-    "SYSTEM MODULES",
-    ["Executive Dashboard", "Kanban Pipeline", "Log Application", "Resume Gap Analysis", "Generate Document"]
-)
+# Import Navigation Component and Views
+from components.navigation import render_sidebar
+from views import dashboard, kanban, log_app, gap_analysis, doc_generator
 
-st.sidebar.markdown("---")
-st.sidebar.caption("System Core: **Ollama Llama3.2 (Local)**")
+def main():
+    # Route list matching navigation items
+    route_options = [
+        "Executive Dashboard",
+        "Kanban Pipeline",
+        "Log Application",
+        "Resume Gap Analysis",
+        "Generate Document"
+    ]
 
-# Route to View Modules
-if menu == "Executive Dashboard":
-    dashboard.render(tracker)
-elif menu == "Kanban Pipeline":
-    kanban.render(tracker)
-elif menu == "Log Application":
-    log_app.render(tracker)
-elif menu == "Resume Gap Analysis":
-    gap_analysis.render()
-elif menu == "Generate Document":
-    doc_generator.render(tracker)
+    # Attempt rendering sidebar route selection
+    try:
+        selected_route = render_sidebar()
+    except Exception:
+        selected_route = None
+
+    # Fallback to horizontal top menu if sidebar navigation returns None/Fails
+    if not selected_route:
+        st.markdown("### ⚡ **CareerOps AI Navigation**")
+        selected_route = st.radio(
+            "Select View Module:",
+            route_options,
+            horizontal=True,
+            key="fallback_top_nav"
+        )
+        st.markdown("---")
+
+    # View Dispatcher Map
+    routes = {
+        "Executive Dashboard": dashboard.render,
+        "Kanban Pipeline": kanban.render,
+        "Log Application": log_app.render,
+        "Resume Gap Analysis": gap_analysis.render,
+        "Generate Document": doc_generator.render
+    }
+
+    # Dispatch to Selected View
+    view_func = routes.get(selected_route, dashboard.render)
+    view_func()
+
+if __name__ == "__main__":
+    main()

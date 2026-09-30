@@ -1,50 +1,130 @@
 import sqlite3
 import os
-from models import Application
+from typing import List, Dict, Any
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_FILE = os.path.join(BASE_DIR, "applications.db")
+DB_PATH = os.path.join(os.path.dirname(__file__), "applications.db")
 
-class Tracker:
-    def __init__(self, db_path=DB_FILE):
-        self.db_path = db_path
-        self._init_db()
+def get_connection():
+    """Returns a connection instance to the applications.db SQLite database."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-    def _get_connection(self):
-        return sqlite3.connect(self.db_path)
+def init_db():
+    """Initializes schema and runs automatic migration checks for missing columns."""
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        
+        # Base table creation
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS applications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                company TEXT NOT NULL,
+                role TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'Applied',
+                date_applied TEXT,
+                location TEXT,
+                job_url TEXT,
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Schema Migration: Check existing columns to dynamically alter older tables
+        cursor.execute("PRAGMA table_info(applications)")
+        existing_columns = [column[1] for column in cursor.fetchall()]
+        
+        required_columns = {
+            "location": "TEXT",
+            "job_url": "TEXT",
+            "notes": "TEXT",
+            "date_applied": "TEXT",
+            "status": "TEXT DEFAULT 'Applied'"
+        }
+        
+        for col_name, col_type in required_columns.items():
+            if col_name not in existing_columns:
+                cursor.execute(f"ALTER TABLE applications ADD COLUMN {col_name} {col_type}")
+                
+        conn.commit()
 
-    def _init_db(self):
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS applications (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    company TEXT NOT NULL,
-                    role TEXT NOT NULL,
-                    status TEXT NOT NULL,
-                    date_applied TEXT NOT NULL,
-                    notes TEXT
-                )
-            """)
-            conn.commit()
+# Ensure schema and migrations run on module import
+init_db()
 
-    def add_application(self, app: Application):
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT INTO applications (company, role, status, date_applied, notes)
-                VALUES (?, ?, ?, ?, ?)
-            """, (app.company, app.role, app.status, app.date_applied, app.notes))
-            conn.commit()
-            print(f"\n[Success] App record saved with ID #{cursor.lastrowid}")
+def add_application(
+    company: str, 
+    role: str, 
+    status: str = "Applied", 
+    date_applied: str = "", 
+    location: str = "", 
+    job_url: str = "", 
+    notes: str = ""
+) -> int:
+    """Inserts a new job application record into SQLite."""
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO applications (company, role, status, date_applied, location, job_url, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (company, role, status, date_applied, location, job_url, notes)
+        )
+        conn.commit()
+        return cursor.lastrowid
 
-    def get_all_applications(self):
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT id, company, role, status, date_applied, notes FROM applications")
-            rows = cursor.fetchall()
-            return [Application(company=r[1], role=r[2], status=r[3], date_applied=r[4], notes=r[5], app_id=r[0]) for r in rows]
+def get_all_applications() -> List[Dict[str, Any]]:
+    """Retrieves all logged job applications sorted by application date."""
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM applications ORDER BY date_applied DESC, id DESC")
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
 
-    def get_followup_reminders(self, threshold_days=14):
-        apps = self.get_all_applications()
-        return [app for app in apps if app.status == "applied" and app.days_since_applied() >= threshold_days]
+def get_application_stats() -> Dict[str, int]:
+    """Calculates KPI statistics across recruitment stages for the dashboard."""
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT status, COUNT(*) as count FROM applications GROUP BY status")
+        rows = cursor.fetchall()
+        
+        stats = {
+            "total": 0,
+            "applied": 0,
+            "interviewing": 0,
+            "offered": 0,
+            "rejected": 0
+        }
+        
+        for row in rows:
+            st_name = str(row["status"]).strip().lower()
+            count = row["count"]
+            stats["total"] += count
+            
+            if st_name in ["applied"]:
+                stats["applied"] += count
+            elif st_name in ["interviewing", "interview"]:
+                stats["interviewing"] += count
+            elif st_name in ["offer", "offered"]:
+                stats["offered"] += count
+            elif st_name in ["rejected"]:
+                stats["rejected"] += count
+
+        return stats
+
+def update_application_status(app_id: int, new_status: str) -> None:
+    """Updates the recruitment stage for a given application ID."""
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE applications SET status = ? WHERE id = ?",
+            (new_status, app_id)
+        )
+        conn.commit()
+        
+def delete_application(app_id: int) -> None:
+    """Deletes an application record by ID from SQLite."""
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM applications WHERE id = ?", (app_id,))
+        conn.commit()
