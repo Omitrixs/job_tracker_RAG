@@ -1,5 +1,5 @@
-import streamlit as st
 import os
+import streamlit as st
 
 # Page Configuration - Enterprise SaaS Theme
 st.set_page_config(
@@ -18,28 +18,37 @@ def load_css():
 
 load_css()
 
-# Import Navigation Component and Views
+# Import Navigation Component and All View Modules
 from components.navigation import render_sidebar
-from views import dashboard, kanban, log_app, gap_analysis, doc_generator
+from views import (
+    dashboard, 
+    kanban, 
+    log_app, 
+    gap_analysis, 
+    doc_generator, 
+    interview_prep
+)
 
 def main():
-    # Route list matching navigation items
+    # Route list matching all application navigation items
     route_options = [
         "Executive Dashboard",
         "Kanban Pipeline",
         "Log Application",
         "Resume Gap Analysis",
-        "Generate Document"
+        "Generate Document",
+        "Interview Prep"
     ]
 
     # Attempt rendering sidebar route selection
+    selected_route = None
     try:
         selected_route = render_sidebar()
     except Exception:
         selected_route = None
 
-    # Fallback to horizontal top menu if sidebar navigation returns None/Fails
-    if not selected_route:
+    # Fallback to horizontal top menu if sidebar navigation returns None or throws an error
+    if not selected_route or selected_route not in route_options:
         st.markdown("### ⚡ **CareerOps AI Navigation**")
         selected_route = st.radio(
             "Select View Module:",
@@ -49,16 +58,17 @@ def main():
         )
         st.markdown("---")
 
-    # View Dispatcher Map
+    # View Dispatcher Map (Clean O(1) Routing Pattern)
     routes = {
         "Executive Dashboard": dashboard.render,
         "Kanban Pipeline": kanban.render,
         "Log Application": log_app.render,
         "Resume Gap Analysis": gap_analysis.render,
-        "Generate Document": doc_generator.render
+        "Generate Document": doc_generator.render,
+        "Interview Prep": interview_prep.render
     }
 
-    # Dispatch to Selected View
+    # Dispatch to Selected View safely with fallback to Dashboard
     view_func = routes.get(selected_route, dashboard.render)
     view_func()
 

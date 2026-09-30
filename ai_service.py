@@ -68,6 +68,17 @@ def _execute_groq_completion(
 
     return f"⚠️ **AI Service Error:** Unable to reach Groq services. Last error details: {str(last_error)}"
 
+def generate_interview_prep(resume_text: str, job_description: str, company_name: str) -> str:
+    """Generates an executive-grade interview preparation guide via Groq Cloud API."""
+    user_content = f"### TARGET COMPANY\n{company_name}\n\n### CANDIDATE RESUME\n{resume_text}\n\n### TARGET JOB DESCRIPTION\n{job_description}"
+    return _execute_groq_completion(
+        system_prompt_file="interview_prep.md",
+        user_content=user_content,
+        temperature=0.3,
+        max_tokens=2500
+    )
+
+
 def analyze_job_match(resume_text: str, job_description: str) -> str:
     """Executes gap analysis evaluation via Groq Cloud API."""
     user_content = f"### CANDIDATE RESUME\n{resume_text}\n\n### TARGET JOB DESCRIPTION\n{job_description}"
@@ -86,4 +97,14 @@ def generate_cover_letter(resume_text: str, job_description: str, company_name: 
         user_content=user_content,
         temperature=0.4,
         max_tokens=2048
+    )
+
+def generate_interview_prep(resume_text: str, job_description: str, company_name: str) -> str:
+    """Generates an executive-grade interview preparation guide via Groq Cloud API."""
+    user_content = f"### TARGET COMPANY\n{company_name}\n\n### CANDIDATE RESUME\n{resume_text}\n\n### TARGET JOB DESCRIPTION\n{job_description}"
+    return _execute_groq_completion(
+        system_prompt_file="interview_prep.md",
+        user_content=user_content,
+        temperature=0.3,
+        max_tokens=2500
     )

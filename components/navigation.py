@@ -27,7 +27,8 @@ def render_sidebar() -> str:
             "Kanban Pipeline",
             "Log Application",
             "Resume Gap Analysis",
-            "Generate Document"
+            "Generate Document",
+            "Interview Prep"
         ],
         key="main_navigation_radio"
     )
