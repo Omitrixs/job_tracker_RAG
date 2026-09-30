@@ -1,0 +1,10 @@
+[
+    {
+        "id": "bf6c1413-a669-4c50-81ae-293cef2d063b",
+        "text": "Built and deployed MetricPulse, a high-performance SaaS analytics dashboard using Next.js, React, TypeScript, and Tailwind CSS. Designed modular component architecture including AppSidebar and state management systems, reducing load times and improving user navigation across multi-tenant data views.",
+        "metadata": {
+            "title": "MetricPulse SaaS Analytics Dashboard",
+            "category": "Technical Project"
+        }
+    }
+]

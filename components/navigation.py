@@ -28,7 +28,8 @@ def render_sidebar() -> str:
             "Log Application",
             "Resume Gap Analysis",
             "Generate Document",
-            "Interview Prep"
+            "Interview Prep",
+            "Career Memory (RAG)"
         ],
         key="main_navigation_radio"
     )

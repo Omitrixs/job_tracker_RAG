@@ -1,5 +1,6 @@
 import os
 import streamlit as st
+from views import dashboard, kanban, log_app, gap_analysis, doc_generator, interview_prep, career_rag
 
 # Page Configuration - Enterprise SaaS Theme
 st.set_page_config(
@@ -26,7 +27,8 @@ from views import (
     log_app, 
     gap_analysis, 
     doc_generator, 
-    interview_prep
+    interview_prep,
+    career_rag
 )
 
 def main():
@@ -37,7 +39,8 @@ def main():
         "Log Application",
         "Resume Gap Analysis",
         "Generate Document",
-        "Interview Prep"
+        "Interview Prep",
+        "Career Memory (RAG)"
     ]
 
     # Attempt rendering sidebar route selection
@@ -65,7 +68,8 @@ def main():
         "Log Application": log_app.render,
         "Resume Gap Analysis": gap_analysis.render,
         "Generate Document": doc_generator.render,
-        "Interview Prep": interview_prep.render
+        "Interview Prep": interview_prep.render,
+        "Career Memory (RAG)": career_rag.render
     }
 
     # Dispatch to Selected View safely with fallback to Dashboard
